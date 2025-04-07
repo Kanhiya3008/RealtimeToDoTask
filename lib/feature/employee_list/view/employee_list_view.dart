@@ -33,39 +33,60 @@ class EmployeeListView extends StatelessWidget {
             final currentEmployees = state.currentEmployees;
             final previousEmployees = state.previousEmployees;
 
-            return currentEmployees.isEmpty && previousEmployees.isEmpty
-                ? Center(
-                  child: Image.asset(
-                    "assets/Group 5367.png",
-                    width: MediaQuery.of(context).size.width / 1.5,
-                  ),
-                )
-                : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (currentEmployees.isNotEmpty) ...[
-                        sectionHeader("Current Employees"),
-                        employeeListBuilder(context, currentEmployees),
-                      ],
-                      if (previousEmployees.isNotEmpty) ...[
-                        sectionHeader("Previous Employees"),
-                        employeeListBuilder(
-                          context,
-                          previousEmployees,
-                          isPrevious: true,
+            return SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Stack(
+                children: [
+                  currentEmployees.isEmpty && previousEmployees.isEmpty
+                      ? Center(
+                        child: Image.asset(
+                          "assets/Group 5367.png",
+                          width: MediaQuery.of(context).size.width / 1.5,
                         ),
-                      ],
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Text(
-                          "Swipe left to delete",
-                          style: AppTextStyles.employeeRole,
+                      )
+                      : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (currentEmployees.isNotEmpty) ...[
+                              sectionHeader("Current Employees"),
+                              employeeListBuilder(context, currentEmployees),
+                            ],
+                            if (previousEmployees.isNotEmpty) ...[
+                              sectionHeader("Previous Employees"),
+                              employeeListBuilder(
+                                context,
+                                previousEmployees,
+                                isPrevious: true,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                );
+
+                  if (currentEmployees.isNotEmpty ||
+                      previousEmployees.isNotEmpty)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: MediaQuery.sizeOf(context).height / 10,
+                        width: MediaQuery.sizeOf(context).width,
+                        color: Color(0xfff2f2f2),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Text(
+                            "Swipe left to delete",
+                            style: AppTextStyles.employeeRole,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
           }
 
           return const SizedBox();
@@ -105,6 +126,7 @@ class EmployeeListView extends StatelessWidget {
     ); // Capture scaffold messenger once
 
     return ListView.builder(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: employeeList.length,
@@ -117,9 +139,10 @@ class EmployeeListView extends StatelessWidget {
           background: Container(
             color: Colors.red,
             alignment: Alignment.centerRight,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
             child: Icon(Icons.delete, color: Colors.white),
           ),
+
           onDismissed: (_) {
             final deletedEmployee = employee;
             bloc.add(EmployeeDeleteEvent(employeeModel: deletedEmployee));
@@ -154,7 +177,7 @@ class EmployeeListView extends StatelessWidget {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -185,7 +208,13 @@ class EmployeeListView extends StatelessWidget {
                       ],
                     ],
                   ),
-                  Divider(color: Colors.grey[300]),
+                  if (employeeList.length > 1 &&
+                      index != employeeList.length - 1) ...[
+                    SizedBox(height: 12),
+                    Divider(color: Colors.grey[300], height: 1),
+                  ],
+
+                  if (index == employeeList.length - 1) SizedBox(height: 12),
                 ],
               ),
             ),
